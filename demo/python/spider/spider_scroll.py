@@ -4,6 +4,7 @@ import urllib.request
 import urllib.parse
 import http.cookiejar
 import os, time
+import re
 from bs4 import BeautifulSoup as bf
 from urllib.request import Request, urlretrieve
 # selenium related
@@ -13,6 +14,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+# set env
+#cur_path = os.environ['PATH']
+#os.environ['PATH'] = cur_path + ';' +  
 
 vr_url = 'https://store.steampowered.com/search/?sort_by=Released_DESC&tags=-1&vrsupport=402'
 page_scroll_n = 3
@@ -25,8 +29,10 @@ game_ret_name_class = 'title'
 game_info = {}
 game_all = []
 
-# start chrome
-browser = webdriver.Chrome()
+
+
+# start browser
+browser = webdriver.Edge(executable_path='./env/msedgedriver.exe')
 browser.get(vr_url)
 
 while page_scroll_n > 0:
@@ -39,18 +45,31 @@ while page_scroll_n > 0:
 html = browser.page_source
 html_bf = bf(html, 'html.parser')
 html_title = html_bf.head.title
-
 # print dialog
 print(html_title)
+
+
 count = 0
+game_basic = []
+game_id = 0
 game_box = html_bf.find_all(game_ret_box, class_=game_ret_class)
 for i in game_box:
-    print(i['href'])
     count += 1;
-    game_info['href'] = i['href']
-    game_info['data-ds-itemkey'] = i['data-ds-itemkey']
-    game_all.append(game_info)
+    # find info from href
+    game_basic = re.findall('/app/(\d)/(.+?)/', i['href'])
+    if game_basic.__len__ > 0:
+        print(i['href'])
+        print(game_basic[0])
+        print(game_basic[1])
+        game_info['id'] = game_basic[0]
+        game_info['name'] = game_basic[1]
+        game_info['href'] = i['href']
 
+        print(i['href'])
+        print(i)
+        game_all.append(game_info)
+
+'''
 # make diretory
 time_str = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
 path_dir = './tmp/' + time_str + '/'
@@ -63,6 +82,7 @@ for i in game_pic:
     count += 1;
     urlretrieve(i['src'], path_dir+str(count)+'.jpg')
 print(str(count)+' pics'+ ' stored into' + path_dir)
+'''
 
 # close browser
 browser.close()
