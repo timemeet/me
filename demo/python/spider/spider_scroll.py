@@ -19,7 +19,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 #os.environ['PATH'] = cur_path + ';' +  
 
 vr_url = 'https://store.steampowered.com/search/?sort_by=Released_DESC&tags=-1&vrsupport=402'
-page_scroll_n = 2
+page_scroll_n = 3
 game_ret_box = 'a'
 game_ret_class = 'search_result_row'
 game_ret_name_box = 'span'
@@ -56,16 +56,17 @@ game_box = html_bf.find_all(game_ret_box, class_=game_ret_class)
 print('total game: ' + str(len(game_box)))
 for i in game_box:
     count += 1;
-    # find info from href
-    game_basic = re.findall(r'/app/(\d)/(.+?)/', i['href'])
+    # find info from href 
+    game_basic = re.findall(r'/app/(\d+)/(.+?)/', str(i['href']))
     print('No.' + str(count) + ': ')
     print('---- ' + i['href'])
+    print('len: ' + str(len(game_basic)))
     
-    if len(game_basic) >= 2:
-        print(game_basic[0])
-        print(game_basic[1])
-        game_info['id'] = game_basic[0]
-        game_info['name'] = game_basic[1]
+    if len(game_basic) > 0:
+        print(game_basic[0][0])
+        print(game_basic[0][1])
+        game_info['id'] = game_basic[0][0]
+        game_info['name'] = game_basic[0][1]
         game_info['href'] = i['href']
         game_all.append(game_info)
 
